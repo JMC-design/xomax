@@ -6,3 +6,4 @@
 c/setpty
 c/setpty.o
 hemlock.core
+*.so
