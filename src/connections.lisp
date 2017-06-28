@@ -299,38 +299,80 @@
 ;;;; PIPELIKE-CONNECTION
 ;;;;
 
+(defparameter *system-source-directory*
+  (merge-pathnames (make-pathname :directory '(:relative "c-lib")
+                                  :defaults #p"libget_pty.so")
+                   (asdf:system-source-directory :hemlock.clx)))
+
+(defun load-get-pty ()
+  (eval `(cffi:define-foreign-library libget_pty
+    (:darwin (:or "libpython2.7.1.dylib" "libpython2.7.dylib"))
+    (:unix (:or ,*system-source-directory* ))
+    (t (:default "libpython2.7")))))
+
+(defun configure-cfuns ()
+  (cffi:use-foreign-library libget_pty)
+  (cffi:defcfun ("cffi_openpt" cffi-openpt) :int (lisp-flags :int))
+  (cffi:defcfun ("cffi_get_slave_pt" cffi-get-slave-pt) :int (master-pt :int))
+  (cffi:defcfun ("cffi_get_slave_name" cffi-get-slave-name) :string (slave-pty :int)))
+
+(load-get-pty)
+(configure-cfuns)
+(defconstant o_rdwr 1)
+(defconstant o_noctty 2)
+
+
 #-(and scl linux)
 (defun find-a-pty ()
-  (block t
-    (dolist (char '(#\p #\q) (error "no pty found"))
-      (dotimes (digit 16)
-        (handler-case
-            (progn
-              (format t "digit ~d" digit)
-              (finish-output)
-              (break)
-              (isys:open
-               (format nil "/dev/pty~C~X" char digit)
-               isys:o-rdwr))
-              ((or isys:enoent
-                   isys:enxio
-                   isys:eio)
-               ())
-              (:no-error (master-fd)
-                         (let ((slave-name (format nil "/dev/tty~C~X" char digit)))
-                           (handler-case
-                               (isys:open slave-name isys:o-rdwr)
-                             ((or isys:enoent
-                               isys:enxio
-                               isys:eio)
-                                 ()
-                 (isys:close master-fd))
-                (:no-error (slave-fd)
-                  (return-from t
-                    (values master-fd
-                            slave-fd
-                            slave-name)))))))))))
+;;  (block t
+;;    (dolist (char '(#\p #\q) (error "no pty found"))
+;;;      (dotimes (digit 16)
+;;;        (handler-case
+;;;            (progn
+              ;; (format t "digit ~d" digit)
+              ;; (finish-output)
+              ;; (break)
+              ;; open pty
+  ;;
+  (let ((master-pty (cffi-openpt o_rdwr)))
+    (unless (>= master-pty 0)
+      (error "Unable to create slave pseudo tty"))
+    (let ((slave-pty (cffi-get-slave-pt master-pty)))
+      (unless (>= master-pty 0)
+        (error "Unable to create slave pseudo tty"))
+      (let ((slave-pty-name (cffi-get-slave-name master-pty)))
+        (unless slave-pty-name
+          (error "Unable to compute the name of pty terminal"))
+        (values master-pty
+                slave-pty
+                slave-pty-name)))))
+        
 
+      
+              ;; (isys:open
+              ;;  (format nil "/dev/pty~C~X" char digit)
+              ;;  isys:o-rdwr)
+;;;              )
+;;;              ((or isys:enoent
+;;;                   isys:enxio
+;;;                   isys:eio)
+;;;               ())
+;;              (:no-error (master-fd)
+              ;; (let ((slave-name digit))
+              ;;   (isys:open slave-name isys:o-rdwr)
+              ;;                ((or isys:enoent
+              ;;                  isys:enxio
+              ;;                  isys:eio)
+              ;;                    ()
+              ;;    (isys:close master-fd))
+              ;;   (:no-error (slave-fd)
+              ;;     (return-from t
+              ;;       (values master-fd
+              ;;               slave-fd
+              ;;               slave-name)))))))))))
+
+
+        
 #+(and scl linux)
 (defun find-a-pty ()
   (multiple-value-bind (master errno)

@@ -1,3 +1,4 @@
+#include "get-pty.h"
 #define _XOPEN_SOURCE 600
 #define _DEFAULT_SOURCE
 #include <stdlib.h>
@@ -8,26 +9,12 @@
 #define __USE_BSD
 #include <termios.h>
 
-int slave_listener(int pty_fd_slave);
-int exec_with_pty(void);
-int run_slave(int pty_fd_slave);
-int run_master(int pty_gd_master);
-
 const int input_size = 150;
 
 const int fd_stdin = 0;
 const int fd_stdout = 1;
 const int fd_stderr = 2;
 
-int main(void) {
-  if (exec_with_pty()) {
-    // Sucess
-    return 0;
-  } else {
-    // Failure
-    return 1;
-  }
-}
 
 // The aspects of protocol for inteteracting with the posix pseudo
 // termininal library that we're interested in.  Firstly, as a
@@ -146,7 +133,6 @@ int run_master(int pty_gd_master) {
 
 int exec_with_pty(void) {
   int pty_gd_master, pty_fd_slave, rc;
-  char input[150];
   pty_gd_master = posix_openpt(O_RDWR);
   if (pty_gd_master < 0) {
     fprintf(stderr, "Error %d on posix_openpt()\n", errno);
@@ -177,3 +163,49 @@ int exec_with_pty(void) {
   }
   return 0;
 } 
+
+// Lisp passes the following flag valuse:
+// O_RDWR: 1
+// O_NOCTTY 2
+
+int cffi_openpt(int lisp_flag) {
+  int posix_flag =
+    ((lisp_flag & 1) ? O_RDWR : 0) |
+    ((lisp_flag & 2) ? O_NOCTTY : 0);
+  printf("O_RDWR(%d), O_NOCTTY(%d)\n", posix_flag & O_RDWR,
+	 posix_flag & O_NOCTTY);
+  int pty = posix_openpt(posix_flag);
+  if (pty < 0) {
+    fprintf(stderr, "Error %d on posix_openpt()\n", errno);
+  }
+  //  fprintf(stderr, "Retrieved pty %d\n", pty_gd_master);
+  int rc = grantpt(pty);
+  if (rc != 0) {
+    fprintf(stderr, "Error %d on grantpt()\n", errno);
+    return 1;
+  }
+  rc = unlockpt(pty);
+  if (rc != 0) {
+    fprintf(stderr, "Error %d on unlockpt()\n", errno);
+    return 1;
+  }
+  // Open the slave PTY
+  return pty;
+}
+
+// Other end of the pty
+int cffi_get_slave_pt(int pty_gd_master) {
+  // Open the slave PTY
+  return open(ptsname(pty_gd_master), O_RDWR);
+}
+
+// Other end of the pty
+const char* cffi_get_slave_name(int pty_gd_master) {
+  // Open the slave PTY
+  return ptsname(pty_gd_master);
+}
+
+
+
+
+
