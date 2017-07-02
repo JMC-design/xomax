@@ -342,7 +342,7 @@
       (let ((lisp (ext:unix-namestring (merge-pathnames (value slave-utility)
                                                         "file://path/")
                                        t t)))
-     
+
         (unless lisp
           (editor-error "Can't find ``~S'' in your path to run."
                         (value slave-utility)))
@@ -352,7 +352,7 @@
                                           hi::*default-backend*
                                           slave
                                           background)))
-              
+
                (proc
                 (ext:run-program lisp args
                                  :wait nil
@@ -861,7 +861,6 @@
                  (terpri stream)
                  (incf i))
                (progn
-                 (break)
                  (conium:compute-backtrace 0 most-positive-fixnum)))))))
 
 (defun start-slave (&rest args)

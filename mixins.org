@@ -1,0 +1,14 @@
+
+
+
+
+
+* Old Hemlock's approach to OO was flavors oriented.
+
+  To emulate that:
+
+  (apply #'make-instance
+         (class-for *connection-backend* 'process-connection-mixin)
+         :name (or name (princ-to-string command))
+         :command command
+         args))

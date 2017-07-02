@@ -148,6 +148,7 @@
     ((instance process-connection/iolib) &key)
   (with-slots (read-fd write-fd pid command slave-pty-name directory) instance
     (connection-note-event instance :initialized)
+    (format t "command(~s)~%" command)
     (when (stringp command)
       (setf command (cl-ppcre:split " " command)))
     (assert (every #'stringp command))
@@ -270,6 +271,7 @@
                                        :type :stream
                                        :remote-host host
                                        :remote-port port))
+      (formate t "port: ~s, socket: ~s~%" port socket)
       (setf read-fd (iolib.sockets:socket-os-fd socket))
       (setf write-fd (iolib.sockets:socket-os-fd socket)))
     (set-iolib-handlers instance)
@@ -335,15 +337,15 @@
       (setf fd (iolib.sockets:socket-os-fd socket)))
     (set-iolib-server-handlers instance)))
 
-(defun set-iolib-server-handlers (instance)
+(defun set-iolib-server-handlers (connection-instance)
   (iolib:set-io-handler
    *event-base*
-   (connection-fd instance)
+   (connection-fd connection-instance)
    :read
    (lambda (.fd event error)
      (declare (ignore event))
      (when (eq error :error) (error "error with ~A" .fd))
-     (process-incoming-connection instance))))
+     (process-incoming-connection connection-instance))))
 
 (defmethod delete-connection :before ((connection listening-connection/iolib))
   (close (connection-socket connection)))
