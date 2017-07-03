@@ -432,10 +432,11 @@ GB
 ;;; particular backend initialization.  It differs from the main function
 ;;; in that it lets the caller take control once initialization is done,
 ;;; instead of entering the command loop.
-;;;
 (defun call-with-editor
-    (fun
-     &key (load-user-init t) backend-type (display (isys:getenv "DISPLAY")))
+    (fun &key
+       (load-user-init t)
+       backend-type
+       (display (isys:getenv "DISPLAY")))
   (when *in-the-editor*
     (error "already in the editor"))
   (when (and backend-type (not (validate-backend-type backend-type)))

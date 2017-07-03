@@ -96,12 +96,10 @@
     (setf (window-tick window) -3)
     (setf (window-%buffer window) new-buffer)))
 
-
-
-;;; %INIT-REDISPLAY sets up redisplay's internal data structures.  We create
-;;; initial windows, setup some hooks to cause modeline recomputation, and call
-;;; any device init necessary.  This is called from ED.
-;;;
+;;; %INIT-REDISPLAY sets up redisplay's internal data structures.  We
+;;; create initial windows, setup some hooks to cause modeline
+;;; recomputation, and call any device init necessary.  This is called
+;;; from ED.
 (defun %init-redisplay (backend-type display)
   (%init-screen-manager backend-type display)
   (add-hook hemlock::buffer-major-mode-hook 'queue-buffer-change)

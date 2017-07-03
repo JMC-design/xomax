@@ -194,19 +194,16 @@
           (setq last x
                 last-font (font-change-font change)) )))))
 
-
 ;;; We hack this since the X11 server's aren't clever about DRAW-IMAGE-GLYPHS;
 ;;; that is, they literally clear the line, and then blast the new glyphs.
 ;;; We don't hack replacing the line when reverse video is turned on because
 ;;; this doesn't seem to work too well.  Also, hacking replace line on the
 ;;; color Megapel display is SLOW!
-;;;
 (defvar *hack-hunk-replace-line* nil)
 
 ;;; Hunk-Replace-Line  --  Internal
 ;;;
-;;;    Similar to Hunk-Write-Line, but the line need not be clear.
-;;;
+;;; Similar to Hunk-Write-Line, but the line need not be clear.
 (defun hunk-replace-line (hunk dl &optional
                                (position (dis-line-position dl)))
   (if *hack-hunk-replace-line*
@@ -288,7 +285,6 @@
 ;;; font is the default font of the hunk.  We must LET bind the foreground and
 ;;; background values before entering XLIB:WITH-GCONTEXT due to a non-obvious
 ;;; or incorrect implementation.
-;;;
 (defmethod hunk-replace-modeline ((hunk x11-hunk))
   (let* ((dl (bitmap-hunk-modeline-dis-line hunk))
          (font-family (bitmap-hunk-font-family hunk))
@@ -313,7 +309,6 @@
                               :end (dis-line-length dl)
                               :translate *glyph-translate-function*))))
 
-
 ;;;; Cursor/Border color manipulation.
 
 ;;; *hemlock-listener* is set to t by default because we can't know from X

@@ -861,7 +861,6 @@
                  (terpri stream)
                  (incf i))
                (progn
-                 (break)
                  (conium:compute-backtrace 0 most-positive-fixnum)))))))
 
 (defun start-slave (&rest args)

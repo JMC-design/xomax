@@ -1403,7 +1403,6 @@
                (ash (ldb (byte 8 0) rgb) blue-mask-gap)))))
 
 (defun init-bitmap-screen-manager (display)
-  ;;
   ;; Setup stuff for X interaction.
   (cond #+NIL ; ###
         ((value hemlock::reverse-video)
@@ -1434,13 +1433,10 @@
   (setf *default-border-pixmap* (get-hemlock-grey-pixmap display))
   (get-hemlock-cursor display)
   (add-hook hemlock::make-window-hook 'define-window-cursor)
-  ;;
   ;; Make the device for the rest of initialization.
   (let ((device (make-default-bitmap-device display)))
-    ;;
     ;; Create initial windows.
     (funcall *create-initial-windows-hook* device)
-    ;;
     ;; Setup random typeout over the user's main window.
     (let ((xwindow (bitmap-hunk-xwindow (window-hunk *current-window*))))
       (xlib:with-state (xwindow)

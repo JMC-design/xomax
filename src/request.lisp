@@ -50,7 +50,6 @@
 ;;;
 ;;; Removes the request server from SERVER's list of file descriptors and
 ;;; closes the socket behind it.
-;;;
 (defun destroy-request-server (server)
   "Quit accepting connections to the given request server."
   (delete-connection (request-server-listener server))
@@ -60,7 +59,6 @@
 ;;;
 ;;; Just like the doc string says, connect to a remote server. A handler is
 ;;; installed to handle return values, etc.
-;;;
 (defun connect-to-remote-server (hostname port on-connected &optional on-death)
   (declare (ignore on-death))           ;fixme?
   "Connect to a remote request server addressed with the given host and port

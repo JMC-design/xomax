@@ -16,7 +16,6 @@
 ;;; The lock field is no longer used.  If events could be handled while we
 ;;; were in the middle of something with the hunk, then this could be set
 ;;; for exclusion purposes.
-;;;
 (defclass bitmap-hunk (device-hunk)
   ((width
     :initarg :width

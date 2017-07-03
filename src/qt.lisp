@@ -72,7 +72,7 @@
       (#_toString x)))
 
 (defun restore-font ()
-  (with-object (sx (qsettings))
+  (with-objects (sx (qsettings))
     (let ((str (qvariant-string (#_value sx "main font"))))
       (when (plusp (length str))
         (setf *font*
