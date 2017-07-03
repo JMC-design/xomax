@@ -1,4 +1,5 @@
 
+;;; (load "/home/rett/.sbclrc")
 
 (ql:quickload :hemlock.clx)
 
@@ -8,6 +9,13 @@
 ;; (trace hi::create-slave
 ;;        :print (progn (format t "arg1: ~s~%" (sb-debug:arg 0))
 ;; 		     (finish-output)))
+
+;; networking calls
+;; connect-to-remote-server
+;; connect-to-editor
+;; %start-slave
+;; start-slave
+;; create-request-server
 
 ;; macros:
 ;; xlib:event-case
@@ -94,12 +102,34 @@
     xlib:wm-size-hints-y))
 
 
-(defparameter *xlib-interaction* '())
 
-(dolist (function used-xlibrary-functions)
-  (eval `(trace ,function
-		:condition (progn
-			     (push (sb-debug:arg 0) *xlib-interaction*)
-			     nil))))
+(defparameter *trace-interaction* '())
+
+(defparameter *iolib-entry-points*
+  '(hemlock::create-slave-in-thread
+    hemlock::create-slave
+    make-process-connection))
+
+(defparameter *enabled-iolib-entry-points*
+  '(hi::initialize-instance))
+
+;; (hi::class-for hi::*connection-backend* 'process-connection-mixin)
+;; (defun setup-tracing-single ()
+;;   (eval `(trace
+;; 		:condition (progn
+;; 			     (push (sb-debug:arg 0) *xlib-interaction*)
+;; 			     nil))))
+
+(defun setup-tracing (functions-to-trace)
+  (dolist (function-to-trace functions-to-trace)
+
+    (eval `(trace ,function-to-trace
+		  :condition (progn
+			       (format t "function-to-trace: ~s~%" '(,function-to-trace))
+			       (push (sb-debug:arg 0) *trace-interaction*)
+			       nil)))))
+
+
+;; (setup-tracing *enabled-iolib-entry-points*)
 
 (hemlock:hemlock)

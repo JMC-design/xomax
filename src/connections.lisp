@@ -331,7 +331,6 @@
 ;;;            (progn
               ;; (format t "digit ~d" digit)
               ;; (finish-output)
-              ;; (break)
               ;; open pty
   ;;
   (let ((master-pty (cffi-openpt o_rdwr)))
@@ -346,9 +345,9 @@
         (values master-pty
                 slave-pty
                 slave-pty-name)))))
-        
 
-      
+
+
               ;; (isys:open
               ;;  (format nil "/dev/pty~C~X" char digit)
               ;;  isys:o-rdwr)
@@ -372,7 +371,7 @@
               ;;               slave-name)))))))))))
 
 
-        
+
 #+(and scl linux)
 (defun find-a-pty ()
   (multiple-value-bind (master errno)
@@ -596,6 +595,7 @@
           (connection-sentinel connection))
     (setf (connection-sentinel connection)
           (lambda (connection event)
+            (format t "sentinal: connection(~s) event(~s)~%" connection event)
             (connection-device-sentinel device connection event)))
     device))
 

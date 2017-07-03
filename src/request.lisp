@@ -28,7 +28,7 @@
 ;;; Create a TCP/IP listener on the given port.  If anyone tries to connect to
 ;;; it, call NEW-CONNECTION to do the connecting.
 ;;;
-(defun create-request-server (&optional port)
+(defun create-request-server (&optional (port 9001))
   "Create a request server on the given port.  Whenever anyone connects to it,
    call the given function with the newly created wire and the address of the
    connector.  If the function returns NIL, the connection is destroyed;
