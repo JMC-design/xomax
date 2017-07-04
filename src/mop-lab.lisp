@@ -1,3 +1,51 @@
+;; Set of functions that prints the methods, slots superclass(s) of an
+;; object.
+
+
+(defclass point ()
+  ((x :initarg :x :accessor x :initform 0)
+   (y :initarg :y :accessor y :initform 0)))
+
+(defmethod move-point ((point point) translation)
+  (setf (x point) (nth 0 translation))
+  (setf (y point) (nth 1 translation)))
+
+(defparameter *point* (make-instance 'point))
+
+(defun print-slots (object)
+  (dolist (slot (sb-mop:class-direct-slots (class-of object)))
+    (sb-mop:slot-definition-name slot)))
+
+
+(dolist (f (sb-mop:specializer-direct-generic-functions
+		  (find-class  (type-of *point*))))
+    (pprint (sb-mop:generic-function-name f)))
+
+
+(defun print-methods (object)
+  (sb-mop:specializer-direct-generic-functions
+   (find-class (type-of object))))
+
+
+
+      
+  (do-symbols (s (symbol-package (type-of object)))
+    (when (and (fboundp s))
+;	       (typep s 'standard-method))
+	(format t "class-of ~s~%" (typep (symbol-function s) 'standard-method)))))
+
+
+
+
+  
+  (sb-mop:lass-direct-subclasses (class-of 'standard-method)))
+
+
+(defun collect-all-subclasses ()
+  (sb-mop:class-direct-subclasses (find-class 'standard-method))
+
+
+
 ;; (defun define-cocktail-class (ingredients)
 ;;   (make-instance 'standard-class
 ;; 		 :name (gensym)
@@ -79,3 +127,8 @@
 	      :direct-superclasses (list (find-class 'color-mixin)
 					 (find-class 'rectangle))
 	      :direct-slots ())
+
+
+
+
+
