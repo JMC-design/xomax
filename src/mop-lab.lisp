@@ -13,18 +13,44 @@
 (defparameter *point* (make-instance 'point))
 
 (defun print-slots (object)
-  (dolist (slot (sb-mop:class-direct-slots (class-of object)))
-    (sb-mop:slot-definition-name slot)))
+  (let (result)
+  (dolist  (slot (sb-mop:class-direct-slots (class-of object)) result)
+    (push (sb-mop:slot-definition-name slot) result))))
+
+;; print all non-access methods supported by the class of object.
+(defun print-methods (object)
+  (let ((result '())
+	(accessors (print-slots object)))
+    (dolist (f (sb-mop:specializer-direct-generic-functions
+		(find-class (type-of object)))
+	     result)
+      (let* ((function-name-or-setf (sb-mop:generic-function-name f))
+	     (function-name (if (listp function-name-or-setf)
+				(cadr function-name-or-setf)
+				function-name-or-setf)))
+	(unless (member  function-name accessors)
+	  (push function-name result))))))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 (dolist (f (sb-mop:specializer-direct-generic-functions
 		  (find-class  (type-of *point*))))
     (pprint (sb-mop:generic-function-name f)))
-
-
-(defun print-methods (object)
-  (sb-mop:specializer-direct-generic-functions
-   (find-class (type-of object))))
 
 
 
@@ -131,4 +157,10 @@
 
 
 
+
+(let (result)
+  (dolist (slot
+	    (sb-mop:class-direct-slots (class-of *point*))
+	   result)
+    (push  slot result)))
 

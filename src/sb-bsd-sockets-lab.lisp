@@ -37,16 +37,49 @@ peoples choice we got rythm
 
 
 
+;; questions: sbd compatibiliety
+;; keepalive value
+;; debug option
+;; 
 
-(setf (find-class name) class)
-name
+
+;; (setf (find-class name) class)
+;; name
+;; ))
+
+
+;; (make-instance 'standard-class
+;; 	       :name '(xomax-socket)
+
+
+
+(defparameter *localhost-address* '(127 0 0 1))
+
+defun make-listen-socket ()
+  (let ((socket (make-instance 'sb-bsd-sockets:inet-socket
+			       :type :stream :protocol :tcp)))
+    (setf (sb-bsd-sockets:sockopt-reuse-address socket) t)
+    (sb-bsd-sockets:socket-bind socket *localhost-address* 8080)
+    (sb-bsd-sockets:socket-listen socket 1)
+    socket))
+
+
+
+
+(defparameter *socket*
+  (make-instance 'sb-bsd-sockets:inet-socket :type :stream :protocol :tcp))
+
+(sb-bsd-sockets:socket-bind *socket* (sb-bsd-sockets:make-inet-address "1.0.0.127") 8081)
+
+
+(defun configure-socket ()
+    (let ((socket (make-instance 'sb-bsd-sockets:inet-socket :type :stream :protocol :tcp)))
 ))
+      (sb-sockets:bind *socket* "1.0.0.127" 8081)
 
-
-(make-instance 'standard-class
-	       :name '(xomax-socket)
-
-
+	       
+(sb-bsd-sockets:socket :protocol 
+ 
 
 ;; development (MOP) classes ideally you could shut these off if not
 ;; supported.
@@ -58,20 +91,19 @@ name
 
 
 ;; standard socket library
-(defmethod socket-bind  ())
+(defmethod non-blocking-mode ())
 (defmethod socket-accept ())
+(defmethod socket-bind  ())
+(defmethod socket-close ())
 (defmethod socket-connect ())
-(defmethod socket-peername ())
+(defmethod socket-error ())
+(defmethod socket-listen ())
+(defmethod socket-make-stream ())
 (defmethod socket-name ())
+(defmethod socket-open-p ())
+(defmethod socket-peername ())
 (defmethod socket-receive ())
 (defmethod socket-send ())
-(defmethod socket-listen ())
-(defmethod socket-open-p ())
-(defmethod socket-close ())
 (defmethod socket-shutdown ())
-(defmethod socket-make-stream ())
-(defmethod socket-make-stream ())
-(defmethod socket-error ())
-(defmethod non-blocking-mode ())
 
 ;; sb-bsd-sockets
